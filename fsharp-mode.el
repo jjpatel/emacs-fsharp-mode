@@ -332,6 +332,28 @@ loading it? "))
     (fsharp-run-process-if-needed)
     (fsharp-simple-send inferior-fsharp-buffer-name command)))
 
+(defun fsharp-send-references (&optional include-source-files)
+  "Send all references of the current project to the inferior fsharp process.
+If include-source-files is true, source files will also be sent."
+  (interactive)
+  (fsharp-run-process-if-needed)
+  (let ((project-data (-> (fsharp-ac--buffer-truename)
+                          (gethash fsharp-ac--project-files)
+                          (gethash fsharp-ac--project-data))))
+    (when project-data
+      (dolist (file-type `(("References" "#r")
+                           ,(when include-source-files '("Files" "#load"))))
+        (dolist (file (gethash (car file-type) project-data))
+          (when (and (file-exists-p file)
+                     (not (member
+                           (file-name-nondirectory file)
+                           fsharp-exclude-send-references)))
+            (fsharp-simple-send
+             inferior-fsharp-buffer-name
+             (format "%s \"%s\""
+                     (cadr file-type)
+                     (file-truename file)))))))))
+
 (defun fsharp-show-subshell ()
   (interactive)
   (require 'inf-fsharp-mode)

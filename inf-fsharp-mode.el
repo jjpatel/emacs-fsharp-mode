@@ -42,6 +42,9 @@
     (concat "\"" (fsharp-mode--executable-find "fsi.exe") "\""))
   "*Program name for invoking an inferior fsharp from Emacs.")
 
+(defvar fsharp-exclude-send-references '("mscorlib.dll" "FSharp.Core.dll")
+  "A list of files to exclude from being sent to the inferior fsharp process.")
+
 ;; End of User modifiable variables
 
 
